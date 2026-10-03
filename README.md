@@ -1,6 +1,6 @@
 # AgentCarbon: Autonomous Satellite & Sensor Carbon Offset Escrow
 
-**Live Decentralized Application:** [https://agent-carbon.vercel.app](https://agent-carbon.vercel.app)  
+**Live Decentralized Application:** [https://frontend-three-drab-v46xpao16q.vercel.app](https://frontend-three-drab-v46xpao16q.vercel.app)  
 **Target Network:** GenLayer StudioNet (Chain ID: `61999` / `0xF1EF`, RPC: `https://studio.genlayer.com/api`)  
 **Deployed Contract Address:** `0xF6bE773151f7285fE87257c0cdef6d4dBAD30f79`  
 **Explorer Contract Link:** [https://genlayer-explorer.vercel.app/address/0xF6bE773151f7285fE87257c0cdef6d4dBAD30f79](https://genlayer-explorer.vercel.app/address/0xF6bE773151f7285fE87257c0cdef6d4dBAD30f79)
