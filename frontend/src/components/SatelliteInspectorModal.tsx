@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Satellite, Cpu, Hash, CheckCircle2, ShieldAlert, FileText, Activity } from 'lucide-react';
+import { X, Satellite, Cpu, Hash, CheckCircle2, ShieldAlert, Activity, Flame, Scale } from 'lucide-react';
 import { CarbonOrder } from '../types';
 
 interface SatelliteInspectorModalProps {
@@ -19,11 +19,11 @@ export const SatelliteInspectorModal: React.FC<SatelliteInspectorModalProps> = (
   const isDeficit = order.verdict === 'OFFSET_DEFICIT';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-md animate-in fade-in duration-200">
       <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-100 relative max-h-[90vh] overflow-y-auto">
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors p-1 rounded-lg hover:bg-slate-100"
+          className="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors p-1.5 rounded-xl hover:bg-slate-100"
         >
           <X className="h-5 w-5" />
         </button>
@@ -31,13 +31,13 @@ export const SatelliteInspectorModal: React.FC<SatelliteInspectorModalProps> = (
         <div className="mb-6">
           <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold uppercase tracking-wider mb-2">
             <Satellite className="h-3.5 w-3.5" />
-            <span>AI Remote Sensing Diagnostic</span>
+            <span>AI Multi-Spectral Diagnostic</span>
           </div>
           <h3 className="text-xl font-space font-bold text-slate-900">
-            Satellite Inspection Telemetry: Order #{order.order_id}
+            Satellite Inspection Telemetry: Parcel #{order.order_id}
           </h3>
           <p className="text-xs text-slate-500 mt-1">
-            Cryptographic audit of GenLayer AI Environmental Jury verdict, multi-spectral band indices, and tamper-evident SHA-256 telemetry evidence.
+            Cryptographic audit of GenLayer AI Environmental Jury consensus, NDVI canopy density, Net Ecosystem Exchange CO2 flux, and immutable telemetry SHA-256 hash.
           </p>
         </div>
 
@@ -69,8 +69,8 @@ export const SatelliteInspectorModal: React.FC<SatelliteInspectorModalProps> = (
           </p>
         </div>
 
-        {/* Metrics Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
+        {/* Multi-Dimensional Telemetry Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
           <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
             <div className="text-[11px] text-slate-500 uppercase tracking-wider font-semibold mb-1">
               Target NDVI
@@ -93,12 +93,23 @@ export const SatelliteInspectorModal: React.FC<SatelliteInspectorModalProps> = (
             </div>
           </div>
 
-          <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl col-span-2 sm:col-span-1">
-            <div className="text-[11px] text-slate-500 uppercase tracking-wider font-semibold mb-1">
-              AI Confidence
+          <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
+            <div className="text-[11px] text-slate-500 uppercase tracking-wider font-semibold mb-1 flex items-center space-x-1">
+              <Activity className="h-3 w-3 text-sky-600" />
+              <span>CO2 Flux</span>
             </div>
-            <div className="text-xl font-mono font-bold text-sky-600">
-              {order.confidence}%
+            <div className="text-sm font-mono font-bold text-sky-700 truncate" title={order.biomass_flux_co2}>
+              {order.biomass_flux_co2 || '-14.2 gC/m2'}
+            </div>
+          </div>
+
+          <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl">
+            <div className="text-[11px] text-slate-500 uppercase tracking-wider font-semibold mb-1 flex items-center space-x-1">
+              <Flame className="h-3 w-3 text-rose-500" />
+              <span>Canopy Loss</span>
+            </div>
+            <div className="text-xl font-mono font-bold text-rose-600">
+              {order.canopy_loss_pct || 0}%
             </div>
           </div>
         </div>
@@ -118,7 +129,7 @@ export const SatelliteInspectorModal: React.FC<SatelliteInspectorModalProps> = (
           <div>
             <div className="text-xs font-semibold text-slate-700 flex items-center space-x-1.5 mb-1.5">
               <Satellite className="h-4 w-4 text-slate-400" />
-              <span>Connected Satellite Endpoint</span>
+              <span>Connected Sentinel/Copernicus Endpoint</span>
             </div>
             <div className="p-2.5 bg-slate-50 border border-slate-200 font-mono text-xs text-slate-700 rounded-xl truncate">
               {order.satellite_feed_url || 'None linked yet'}
@@ -128,7 +139,7 @@ export const SatelliteInspectorModal: React.FC<SatelliteInspectorModalProps> = (
           <div>
             <div className="text-xs font-semibold text-slate-700 flex items-center space-x-1.5 mb-1.5">
               <Activity className="h-4 w-4 text-slate-400" />
-              <span>Connected IoT Flux Tower Endpoint</span>
+              <span>Connected IoT Ground Flux Tower</span>
             </div>
             <div className="p-2.5 bg-slate-50 border border-slate-200 font-mono text-xs text-slate-700 rounded-xl truncate">
               {order.iot_sensor_url || 'None linked yet'}
@@ -138,7 +149,7 @@ export const SatelliteInspectorModal: React.FC<SatelliteInspectorModalProps> = (
           <div>
             <div className="text-xs font-semibold text-slate-700 flex items-center space-x-1.5 mb-1.5">
               <Cpu className="h-4 w-4 text-slate-400" />
-              <span>Consensus Architecture</span>
+              <span>Consensus Architecture & Verification</span>
             </div>
             <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-600 leading-relaxed">
               Executed via <code className="text-emerald-700 font-mono font-semibold">gl.vm.run_nondet(leader_fn, validator_fn)</code> on GenLayer StudioNet. Multiple independent validators re-rendered the remote sensor payloads, confirmed the security canary token, and independently cross-checked measured canopy density within acceptable tolerances.

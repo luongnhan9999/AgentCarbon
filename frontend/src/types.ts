@@ -15,6 +15,8 @@ export interface CarbonOrder {
   reason: string;
   confidence: number;
   measured_ndvi: number;
+  biomass_flux_co2: string;
+  canopy_loss_pct: number;
   created_at_block: string;
   expires_at_block: string;
   audit_completed_block: string;

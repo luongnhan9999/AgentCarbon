@@ -4,13 +4,14 @@ import { studionet } from 'genlayer-js/chains';
 import { Navbar } from './components/Navbar';
 import { StatsOverview } from './components/StatsOverview';
 import { OrderCard } from './components/OrderCard';
+import { OrbitalCanopyRadar } from './components/OrbitalCanopyRadar';
 import { CreateOffsetModal } from './components/CreateOffsetModal';
 import { TelemetrySubmitModal } from './components/TelemetrySubmitModal';
 import { SatelliteInspectorModal } from './components/SatelliteInspectorModal';
 import { AppealModal } from './components/AppealModal';
 import { CarbonOrder, StatsData } from './types';
 import { DEFAULT_CONTRACT_ADDRESS, CHAIN_ID_HEX } from './config/genlayer';
-import { Plus, Satellite, RefreshCw, AlertCircle } from 'lucide-react';
+import { Plus, Satellite, RefreshCw, AlertCircle, Sparkles, Filter } from 'lucide-react';
 
 export function App() {
   const [account, setAccount] = useState<string | null>(null);
@@ -24,6 +25,10 @@ export function App() {
   // Contract Data
   const [orders, setOrders] = useState<CarbonOrder[]>([]);
   const [stats, setStats] = useState<StatsData | null>(null);
+
+  // Filter & Radar selection
+  const [filterRole, setFilterRole] = useState<'all' | 'mine' | 'open' | 'monitoring' | 'disputed'>('all');
+  const [selectedRadarOrderId, setSelectedRadarOrderId] = useState<number | null>(null);
 
   // Modals state
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -141,7 +146,11 @@ export function App() {
 
       if (rawAllOrders) {
         const parsedOrders: CarbonOrder[] = typeof rawAllOrders === 'string' ? JSON.parse(rawAllOrders) : rawAllOrders;
-        setOrders(parsedOrders.reverse()); // most recent first
+        const reversed = parsedOrders.reverse();
+        setOrders(reversed);
+        if (reversed.length > 0 && selectedRadarOrderId === null) {
+          setSelectedRadarOrderId(reversed[0].order_id);
+        }
       }
 
       // Read stats
@@ -188,7 +197,7 @@ export function App() {
         value: weiDeposit,
       });
 
-      setTxMessage('Escrow order submitted! Awaiting consensus confirmation...');
+      setTxMessage('Escrow order submitted! Awaiting GenVM block confirmation...');
       await (client as any).waitForTransactionReceipt({ hash: tx });
       setIsCreateOpen(false);
       await fetchContractState();
@@ -208,7 +217,7 @@ export function App() {
       return;
     }
     setIsTxPending(true);
-    setTxMessage(`Claiming Order #${orderId} & Linking Telemetry Feeds...`);
+    setTxMessage(`Claiming Parcel #${orderId} & Linking Remote Sensing Telemetry...`);
     setErrorMsg(null);
     try {
       const client = getClient();
@@ -238,7 +247,7 @@ export function App() {
     }
     setIsTxPending(true);
     setTxMessage(
-      `Convening AI Environmental Jury for Order #${orderId}... GenVM validators rendering satellite telemetry & analyzing NDVI.`
+      `Convening AI Environmental Jury on Parcel #${orderId}... Non-deterministic consensus running multi-spectral NDVI & CO2 flux analysis.`
     );
     setErrorMsg(null);
     try {
@@ -249,7 +258,7 @@ export function App() {
         args: [orderId],
       });
 
-      setTxMessage('AI consensus reached! Finalizing verdict on StudioNet...');
+      setTxMessage('AI consensus reached! Finalizing multi-spectral verdict on StudioNet...');
       await (client as any).waitForTransactionReceipt({ hash: tx });
       await fetchContractState();
     } catch (err: any) {
@@ -267,7 +276,7 @@ export function App() {
       return;
     }
     setIsTxPending(true);
-    setTxMessage(`Staking 10% Dispute Bond and Filing Appeal for Order #${orderId}...`);
+    setTxMessage(`Staking 10% Dispute Bond and Filing Appeal for Parcel #${orderId}...`);
     setErrorMsg(null);
     try {
       const client = getClient();
@@ -299,7 +308,7 @@ export function App() {
     }
     setIsTxPending(true);
     setTxMessage(
-      `Supreme Space Court Deliberating on Order #${orderId}... Multi-spectral review underway.`
+      `Supreme Space Court Deliberating on Parcel #${orderId}... Multi-spectral review underway.`
     );
     setErrorMsg(null);
     try {
@@ -330,7 +339,7 @@ export function App() {
       return;
     }
     setIsTxPending(true);
-    setTxMessage(`Finalizing settlement payout for Order #${orderId}...`);
+    setTxMessage(`Finalizing settlement payout for Parcel #${orderId}...`);
     setErrorMsg(null);
     try {
       const client = getClient();
@@ -359,7 +368,7 @@ export function App() {
       return;
     }
     setIsTxPending(true);
-    setTxMessage(`Reclaiming escrow deposit for Order #${orderId}...`);
+    setTxMessage(`Reclaiming escrow deposit for Parcel #${orderId}...`);
     setErrorMsg(null);
     try {
       const client = getClient();
@@ -381,8 +390,20 @@ export function App() {
     }
   };
 
+  // Filtered orders list
+  const filteredOrders = orders.filter((o) => {
+    if (filterRole === 'mine' && account) {
+      const user = account.toLowerCase();
+      return o.buyer.toLowerCase() === user || o.developer.toLowerCase() === user;
+    }
+    if (filterRole === 'open') return o.status === 0;
+    if (filterRole === 'monitoring') return o.status === 1;
+    if (filterRole === 'disputed') return o.status === 6;
+    return true;
+  });
+
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans">
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans selection:bg-emerald-500 selection:text-white">
       <Navbar
         account={account}
         balance={balance}
@@ -396,7 +417,7 @@ export function App() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
         {/* Banner Notification for TX Processing */}
         {isTxPending && (
-          <div className="mb-6 p-4 rounded-2xl bg-emerald-900 text-white shadow-lg flex items-center space-x-3 animate-pulse">
+          <div className="mb-6 p-4 rounded-2xl bg-slate-900 text-white shadow-xl border border-emerald-500/40 flex items-center space-x-3 animate-pulse">
             <RefreshCw className="h-5 w-5 animate-spin text-emerald-400 shrink-0" />
             <div className="text-sm font-medium">{txMessage}</div>
           </div>
@@ -413,14 +434,14 @@ export function App() {
         {/* Hero Section */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
           <div>
-            <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-emerald-100/70 text-emerald-800 text-xs font-semibold mb-2">
+            <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-semibold mb-2 border border-emerald-200">
               <Satellite className="h-3.5 w-3.5 text-emerald-700" />
-              <span>Copernicus & NASA Remote Sensing + GenVM Semantic Consensus</span>
+              <span>Copernicus Multi-Spectral Imagery + Non-Deterministic Web Consensus</span>
             </div>
             <h1 className="text-3xl sm:text-4xl font-space font-bold tracking-tight text-slate-900">
-              Autonomous Carbon Offset Escrow
+              Autonomous Satellite & Sensor Carbon Escrow
             </h1>
-            <p className="text-sm text-slate-500 mt-1 max-w-2xl">
+            <p className="text-sm text-slate-600 mt-1 max-w-2xl">
               Eliminating carbon credit greenwashing with trustless AI satellite verification. Buyers lock GEN in escrow; funds release only when multi-spectral canopy index meets strict ecological thresholds.
             </p>
           </div>
@@ -428,7 +449,7 @@ export function App() {
           <div>
             <button
               onClick={() => setIsCreateOpen(true)}
-              className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm transition-all shadow-md shadow-emerald-600/20 flex items-center justify-center space-x-2"
+              className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-medium text-sm transition-all shadow-md shadow-emerald-600/20 flex items-center justify-center space-x-2"
             >
               <Plus className="h-4 w-4" />
               <span>Create Offset Order</span>
@@ -439,41 +460,105 @@ export function App() {
         {/* Global Statistics */}
         <StatsOverview stats={stats} totalOrders={orders.length} />
 
-        {/* Orders Header */}
-        <div className="flex items-center justify-between mb-4">
+        {/* High-Tech Animated Earth Observation Radar Console */}
+        <OrbitalCanopyRadar
+          orders={orders}
+          selectedOrderId={selectedRadarOrderId}
+          onSelectOrder={(id) => setSelectedRadarOrderId(id)}
+        />
+
+        {/* Orders Header & Filter Tabs */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
           <div className="flex items-center space-x-2">
             <h2 className="text-xl font-space font-bold text-slate-900">
               Active Carbon Parcels & Escrows
             </h2>
-            <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 font-semibold">
-              {orders.length}
+            <span className="text-xs font-mono px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-800 font-bold">
+              {filteredOrders.length}
             </span>
+          </div>
+
+          {/* Filter Pills */}
+          <div className="flex items-center bg-white border border-slate-200 p-1 rounded-xl text-xs font-mono overflow-x-auto shadow-sm">
+            <button
+              onClick={() => setFilterRole('all')}
+              className={`px-3 py-1.5 rounded-lg transition-all ${
+                filterRole === 'all'
+                  ? 'bg-slate-900 text-white font-bold'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              All Parcels ({orders.length})
+            </button>
+            <button
+              onClick={() => setFilterRole('mine')}
+              className={`px-3 py-1.5 rounded-lg transition-all ${
+                filterRole === 'mine'
+                  ? 'bg-emerald-600 text-white font-bold'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              My Parcels
+            </button>
+            <button
+              onClick={() => setFilterRole('open')}
+              className={`px-3 py-1.5 rounded-lg transition-all ${
+                filterRole === 'open'
+                  ? 'bg-amber-600 text-white font-bold'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Open Claims
+            </button>
+            <button
+              onClick={() => setFilterRole('monitoring')}
+              className={`px-3 py-1.5 rounded-lg transition-all ${
+                filterRole === 'monitoring'
+                  ? 'bg-sky-600 text-white font-bold'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Monitoring
+            </button>
+            <button
+              onClick={() => setFilterRole('disputed')}
+              className={`px-3 py-1.5 rounded-lg transition-all ${
+                filterRole === 'disputed'
+                  ? 'bg-purple-600 text-white font-bold'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              In Dispute
+            </button>
           </div>
         </div>
 
         {/* Order Cards Grid */}
-        {orders.length === 0 ? (
+        {filteredOrders.length === 0 ? (
           <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center max-w-lg mx-auto shadow-sm">
             <div className="h-14 w-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-4">
               <Satellite className="h-7 w-7" />
             </div>
             <h3 className="font-space font-bold text-lg text-slate-900">
-              No Carbon Escrows Active Yet
+              No Carbon Parcels Match Filter
             </h3>
             <p className="text-xs text-slate-500 mt-1 mb-6">
-              Be the first to create a satellite-audited carbon offset parcel on GenLayer StudioNet.
+              Create a new carbon offset parcel or switch filters to inspect other orders on GenLayer StudioNet.
             </p>
             <button
-              onClick={() => setIsCreateOpen(true)}
+              onClick={() => {
+                setFilterRole('all');
+                setIsCreateOpen(true);
+              }}
               className="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium inline-flex items-center space-x-1.5 transition-colors"
             >
               <Plus className="h-3.5 w-3.5" />
-              <span>Create First Offset Order</span>
+              <span>Create Carbon Offset Order</span>
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {orders.map((ord) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredOrders.map((ord) => (
               <OrderCard
                 key={ord.order_id}
                 order={ord}
@@ -492,10 +577,10 @@ export function App() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-slate-200 bg-white py-6 mt-12 text-center text-xs text-slate-400 font-mono">
+      <footer className="border-t border-slate-200 bg-white py-6 mt-12 text-center text-xs text-slate-500 font-mono">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div>
-            AgentCarbon Protocol &middot; GenLayer StudioNet (Chain ID: 61999)
+            AgentCarbon Protocol &middot; GenLayer StudioNet (Chain ID: 61999) &middot; Live Production
           </div>
           <div className="flex items-center space-x-4">
             <a
@@ -508,12 +593,12 @@ export function App() {
             </a>
             <span>&middot;</span>
             <a
-              href="https://studio.genlayer.com"
+              href="https://agentcarbon.vercel.app"
               target="_blank"
               rel="noreferrer"
-              className="hover:text-emerald-600 transition-colors"
+              className="hover:text-emerald-600 transition-colors font-bold text-emerald-700"
             >
-              GenLayer Studio
+              agentcarbon.vercel.app
             </a>
           </div>
         </div>
