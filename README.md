@@ -2,8 +2,8 @@
 
 **Live Decentralized Application:** [https://agentcarbon.vercel.app](https://agentcarbon.vercel.app)  
 **Target Network:** GenLayer StudioNet (Chain ID: `61999` / `0xF1EF`, RPC: `https://studio.genlayer.com/api`)  
-**Deployed Contract Address:** `0xd39952b1317F590a05431bE7633dd7747515bDf5`  
-**Explorer Contract Link:** [https://genlayer-explorer.vercel.app/address/0xd39952b1317F590a05431bE7633dd7747515bDf5](https://genlayer-explorer.vercel.app/address/0xd39952b1317F590a05431bE7633dd7747515bDf5)
+**Deployed Contract Address:** `0x0431404232205fF6E40b107F479E1c6538A56665`  
+**Explorer Contract Link:** [https://genlayer-explorer.vercel.app/address/0x0431404232205fF6E40b107F479E1c6538A56665](https://genlayer-explorer.vercel.app/address/0x0431404232205fF6E40b107F479E1c6538A56665)
 
 ---
 
